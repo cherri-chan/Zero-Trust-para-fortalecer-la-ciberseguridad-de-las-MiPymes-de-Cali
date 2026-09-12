@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma Zero Trust para MiPymes</title>
+
+    <style>
+        :root {
+            --azul: #1f4e79;
+            --azul-claro: #eaf3f8;
+            --azul-medio: #5b9bd5;
+            --verde: #70ad47;
+            --rojo: #c00000;
+            --gris: #f4f6f8;
+            --gris-texto: #59636e;
+            --blanco: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: var(--gris);
+            color: #222;
+        }
+
+        .contenedor {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .barra-lateral {
+            width: 240px;
+            background: var(--azul);
+            color: var(--blanco);
+            padding: 24px 16px;
+        }
+
+        .marca {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .marca h1 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .marca p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin: 8px 0;
+        }
+
+        .menu button {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--blanco);
+            text-align: left;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .menu button:hover,
+        .menu button.activo {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .contenido {
+            flex: 1;
+            padding: 28px;
+        }
+
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .encabezado h2 {
+            color: var(--azul);
+        }
+
+        .usuario {
+            color: var(--gris-texto);
+            font-size: 14px;
+        }
+
+        .tarjetas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .tarjeta {
+            background: var(--blanco);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .tarjeta h3 {
+            font-size: 13px;
+            color: var(--gris-texto);
+            margin-bottom: 10px;
+        }
+
+        .tarjeta strong {
+            font-size: 28px;
+            color: var(--azul);
+        }
+
+        .panel {
+            background: var(--blanco);
+            border-radius: 10px;
+            padding: 22px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .panel h3 {
+            color: var(--azul);
+            margin-bottom: 18px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #e4e7eb;
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: var(--azul-claro);
+            color: var(--azul);
+        }
+
+        .estado {
+            padding: 5px 9px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .permitido {
+            background: #e2f0d9;
+            color: #375623;
+        }
+
+        .denegado {
+            background: #fce4d6;
+            color: var(--rojo);
+        }
+
+        .seccion {
+            display: none;
+        }
+
+        .seccion.visible {
+            display: block;
+        }
+
+        .boton {
+            border: none;
+            background: var(--azul);
+            color: var(--blanco);
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+
+        .boton:hover {
+            background: #163a5b;
+        }
+
+        @media (max-width: 750px) {
+            .contenedor {
+                flex-direction: column;
+            }
+
+            .barra-lateral {
+                width: 100%;
+            }
+
+            .menu {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .menu li {
+                flex: 1 1 140px;
+            }
+
+            .contenido {
+                padding: 16px;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <aside class="barra-lateral">
+        <div class="marca">
+            <h1>Zero Trust</h1>
+            <p>Control progresivo para MiPymes</p>
+        </div>
+
+        <ul class="menu">
+            <li>
+                <button class="activo" onclick="mostrarSeccion('inicio', this)">
+                    Inicio
+                </button>
+            </li>
+            <li>
+                <button onclick="mostrarSeccion('usuarios', this)">
+                    Usuarios y roles
+                </button>
+            </li>
+            <li>
+                <button onclick="mostrarSeccion('dispositivos', this)">
+                    Dispositivos
+                </button>
+            </li>
+            <li>
+                <button onclick="mostrarSeccion('politicas', this)">
+                    Políticas
+                </button>
+            </li>
+            <li>
+                <button onclick="mostrarSeccion('eventos', this)">
+                    Eventos
+                </button>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="contenido">
+
+        <div class="encabezado">
+            <h2 id="titulo-seccion">Resumen de seguridad</h2>
+            <div class="usuario">Administrador | Sesión protegida con MFA</div>
+        </div>
+
+        <section id="inicio" class="seccion visible">
+            <div class="tarjetas">
+                <div class="tarjeta">
+                    <h3>Usuarios activos</h3>
+                    <strong>24</strong>
+                </div>
+
+                <div class="tarjeta">
+                    <h3>Dispositivos autorizados</h3>
+                    <strong>31</strong>
+                </div>
+
+                <div class="tarjeta">
+                    <h3>Accesos permitidos</h3>
+                    <strong>186</strong>
+                </div>
+
+                <div class="tarjeta">
+                    <h3>Accesos denegados</h3>
+                    <strong>12</strong>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Últimos eventos</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Recurso</th>
+                            <th>Resultado</th>
+                            <th>Causa</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>08:32</td>
+                            <td>Ana</td>
+                            <td>Aplicación empresarial</td>
+                            <td>
+                                <span class="estado permitido">Permitido</span>
+                            </td>
+                            <td>Rol válido y MFA correcto</td>
+                        </tr>
+
+                        <tr>
+                            <td>08:35</td>
+                            <td>Carlos</td>
+                            <td>Base de datos</td>
+                            <td>
+                                <span class="estado denegado">Denegado</span>
+                            </td>
+                            <td>Permiso insuficiente</td>
+                        </tr>
+
+                        <tr>
+                            <td>08:37</td>
+                            <td>Usuario externo</td>
+                            <td>Servidor de archivos</td>
+                            <td>
+                                <span class="estado denegado">Denegado</span>
+                            </td>
+                            <td>Dispositivo no autorizado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="usuarios" class="seccion">
+            <div class="panel">
+                <h3>Usuarios y roles</h3>
+                <button class="boton" onclick="alert('Función de demostración: crear usuario')">
+                    Crear usuario
+                </button>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>Ana Rodríguez</td>
+                            <td>ana@empresa.local</td>
+                            <td>Operativo</td>
+                            <td>Activo</td>
+                        </tr>
+
+                        <tr>
+                            <td>Carlos Pérez</td>
+                            <td>carlos@empresa.local</td>
+                            <td>Administrador</td>
+                            <td>Activo</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="dispositivos" class="seccion">
+            <div class="panel">
+                <h3>Dispositivos registrados</h3>
+                <button class="boton" onclick="alert('Función de demostración: registrar dispositivo')">
+                    Registrar dispositivo
+                </button>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Identificador</th>
+                            <th>Usuario</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>PC-ADM-001</td>
+                            <td>Carlos Pérez</td>
+                            <td>Portátil</td>
+                            <td>
+                                <span class="estado permitido">Autorizado</span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>MOV-EXT-003</td>
+                            <td>Usuario externo</td>
+                            <td>Móvil</td>
+                            <td>
+                                <span class="estado denegado">Bloqueado</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="politicas" class="seccion">
+            <div class="panel">
+                <h3>Políticas de acceso</h3>
+                <button class="boton" onclick="alert('Función de demostración: crear política')">
+                    Nueva política
+                </button>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Política</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>Usuarios internos con MFA</td>
+                            <td>1</td>
+                            <td>Activa</td>
+                            <td>Permitir</td>
+                        </tr>
+
+                        <tr>
+                            <td>Dispositivo no autorizado</td>
+                            <td>2</td>
+                            <td>Activa</td>
+                            <td>Denegar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="eventos" class="seccion">
+            <div class="panel">
+                <h3>Eventos de auditoría</h3>
+                <button class="boton" onclick="alert('Función de demostración: exportar eventos')">
+                    Exportar eventos
+                </button>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Recurso</th>
+                            <th>Resultado</th>
+                            <th>Motivo</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>2026-09-11 08:32</td>
+                            <td>Ana</td>
+                            <td>Aplicación empresarial</td>
+                            <td>Permitido</td>
+                            <td>Rol válido</td>
+                        </tr>
+
+                        <tr>
+                            <td>2026-09-11 08:35</td>
+                            <td>Carlos</td>
+                            <td>Base de datos</td>
+                            <td>Denegado</td>
+                            <td>Sin permiso</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    function mostrarSeccion(id, boton) {
+        const secciones = document.querySelectorAll(".seccion");
+        const botones = document.querySelectorAll(".menu button");
+
+        secciones.forEach(function(seccion) {
+            seccion.classList.remove("visible");
+        });
+
+        botones.forEach(function(elemento) {
+            elemento.classList.remove("activo");
+        });
+
+        document.getElementById(id).classList.add("visible");
+        boton.classList.add("activo");
+
+        const titulos = {
+            inicio: "Resumen de seguridad",
+            usuarios: "Usuarios y roles",
+            dispositivos: "Dispositivos registrados",
+            politicas: "Políticas de acceso",
+            eventos: "Eventos de auditoría"
+        };
+
+        document.getElementById("titulo-seccion").textContent = titulos[id];
+    }
+</script>
+
+</body>
+</html>
