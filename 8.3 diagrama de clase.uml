@@ -1,0 +1,137 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam class {
+    BackgroundColor #F8FBFD
+    BorderColor #1F4E79
+    ArrowColor #1F4E79
+}
+
+class Usuario {
+    - idUsuario: UUID
+    - nombre: String
+    - correo: String
+    - estado: EstadoUsuario
+    - fechaCreacion: Date
+    + iniciarSesion(): Boolean
+    + solicitarAcceso(): SolicitudAcceso
+}
+
+class Rol {
+    - idRol: UUID
+    - nombre: String
+    - descripcion: String
+    + asignarPermiso(permiso: Permiso): void
+    + retirarPermiso(permiso: Permiso): void
+}
+
+class Permiso {
+    - idPermiso: UUID
+    - accion: String
+    - recurso: String
+    - nivel: String
+}
+
+class Dispositivo {
+    - idDispositivo: UUID
+    - identificador: String
+    - tipo: String
+    - sistemaOperativo: String
+    - autorizado: Boolean
+    - nivelPostura: String
+    + verificarPostura(): Boolean
+}
+
+class Recurso {
+    - idRecurso: UUID
+    - nombre: String
+    - tipo: String
+    - segmento: String
+    - nivelSensibilidad: String
+}
+
+class PoliticaAcceso {
+    - idPolitica: UUID
+    - nombre: String
+    - prioridad: Integer
+    - condicion: String
+    - accion: String
+    - estado: Boolean
+    + evaluar(solicitud: SolicitudAcceso): DecisionAcceso
+}
+
+class SolicitudAcceso {
+    - idSolicitud: UUID
+    - fechaHora: DateTime
+    - origenRed: String
+    - contexto: String
+    + validar(): Boolean
+}
+
+class DecisionAcceso {
+    - idDecision: UUID
+    - resultado: ResultadoDecision
+    - motivo: String
+    - fechaHora: DateTime
+    + registrar(): EventoAuditoria
+}
+
+class EventoAuditoria {
+    - idEvento: UUID
+    - tipoEvento: String
+    - fechaHora: DateTime
+    - severidad: String
+    - detalle: String
+    + consultar(): String
+}
+
+class ProveedorIdentidad {
+    - idProveedor: UUID
+    - nombre: String
+    - protocolo: String
+    + validarCredenciales(): Boolean
+    + validarMFA(): Boolean
+}
+
+class Administrador {
+    + crearUsuario(): Usuario
+    + configurarPolitica(): PoliticaAcceso
+    + registrarDispositivo(): Dispositivo
+}
+
+class ResponsableSeguridad {
+    + consultarEventos(): List
+    + generarReporte(): String
+    + revocarSesion(): Boolean
+}
+
+enum EstadoUsuario {
+    ACTIVO
+    INACTIVO
+    BLOQUEADO
+}
+
+enum ResultadoDecision {
+    PERMITIDO
+    DENEGADO
+}
+
+Usuario "1" -- "0..*" Rol : posee >
+Rol "1..*" -- "0..*" Permiso : incluye >
+Usuario "1" -- "0..*" Dispositivo : utiliza >
+SolicitudAcceso "0..*" --> "1" Usuario : pertenece a >
+SolicitudAcceso "0..*" --> "1" Dispositivo : se origina en >
+SolicitudAcceso "0..*" --> "1" Recurso : solicita >
+PoliticaAcceso "1..*" --> "0..*" Rol : aplica a >
+PoliticaAcceso "1..*" --> "0..*" Recurso : protege >
+PoliticaAcceso "1" --> "0..*" SolicitudAcceso : evalua >
+SolicitudAcceso "1" --> "1" DecisionAcceso : produce >
+DecisionAcceso "1" --> "1" EventoAuditoria : genera >
+ProveedorIdentidad "1" --> "0..*" Usuario : autentica >
+Administrador ..> Usuario : administra >
+Administrador ..> Rol : configura >
+Administrador ..> PoliticaAcceso : define >
+ResponsableSeguridad ..> EventoAuditoria : consulta >
+
+@enduml

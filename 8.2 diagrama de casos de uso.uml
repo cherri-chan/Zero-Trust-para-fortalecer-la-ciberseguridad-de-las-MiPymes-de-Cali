@@ -1,0 +1,113 @@
+@startuml
+left to right direction
+
+' --- Configuraciones generales ---
+skinparam shadowing false
+skinparam actorStyle awesome
+skinparam defaultFontName "Segoe UI"
+skinparam roundcorner 15
+skinparam packageStyle rectangle
+
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #B0BEC5
+    BorderThickness 2
+}
+
+skinparam package {
+    BackgroundColor #FFFFFF
+    BorderColor #CFD8DC
+    FontColor #546E7A
+    FontSize 14
+}
+
+skinparam usecase {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontColor #0D47A1
+    ArrowColor #546E7A
+}
+
+' --- Actores ---
+actor "Usuario empresarial" as Usuario
+actor "Proveedor de identidad" as IdP
+actor "Dispositivo" as Dispositivo
+actor "Recurso protegido" as Recurso
+
+actor "Admin. del sistema" as Admin
+actor "Resp. de seguridad" as Seguridad
+
+' --- Límite del Sistema ---
+rectangle "Plataforma Zero Trust para MiPymes" {
+
+    package "1. Autenticación" {
+        usecase "Iniciar sesión" as UC01
+        usecase "Validar credenciales" as UC02
+        usecase "Validar 2FA" as UC03
+    }
+    
+    package "2. Control de Acceso" {
+        usecase "Solicitar acceso a recurso" as UC04
+        usecase "Verificar dispositivo" as UC05
+        usecase "Consultar rol y permisos" as UC06
+        usecase "Evaluar política" as UC07
+        usecase "Conceder acceso" as UC08
+        usecase "Denegar acceso" as UC09
+        usecase "Registrar decisión" as UC10
+    }
+
+    package "3. Administración" {
+        usecase "Gestionar usuarios" as UC11
+        usecase "Gestionar roles" as UC12
+        usecase "Registrar dispositivo" as UC13
+        usecase "Definir políticas" as UC14
+        usecase "Segmentar recursos" as UC15
+    }
+
+    package "4. Auditoría" {
+        usecase "Consultar eventos" as UC16
+        usecase "Filtrar eventos" as UC17
+        usecase "Generar reporte" as UC18
+        usecase "Revocar sesión" as UC19
+    }
+}
+
+' --- Relaciones (Usando -up-> o -down-> para forzar orden) ---
+Usuario ---> UC01
+Usuario ---> UC04
+
+IdP -up-> UC02
+IdP -up-> UC03
+
+Dispositivo -up-> UC05
+Recurso -up-> UC08
+Recurso -up-> UC09
+
+Admin ---> UC11
+Admin ---> UC12
+Admin ---> UC13
+Admin ---> UC14
+Admin ---> UC15
+Admin ---> UC16
+
+Seguridad ---> UC16
+Seguridad ---> UC17
+Seguridad ---> UC18
+Seguridad ---> UC19
+
+' Dependencias internas (usando .up. o .down. para evitar cruces horizontales)
+UC01 .down.> UC02 : <<include>>
+UC01 .down.> UC03 : <<include>>
+
+UC04 .down.> UC05 : <<include>>
+UC04 .down.> UC06 : <<include>>
+UC04 .down.> UC07 : <<include>>
+UC04 .down.> UC10 : <<include>>
+
+UC07 .down.> UC08 : <<extend>>
+UC07 .down.> UC09 : <<extend>>
+
+UC16 .down.> UC17 : <<include>>
+UC16 .down.> UC18 : <<extend>>
+
+@enduml

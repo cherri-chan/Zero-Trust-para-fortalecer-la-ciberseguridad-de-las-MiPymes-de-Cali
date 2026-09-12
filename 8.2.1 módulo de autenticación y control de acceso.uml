@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+
+skinparam shadowing false
+skinparam actorStyle awesome
+skinparam defaultFontName "Segoe UI"
+skinparam roundcorner 15
+
+skinparam rectangle {
+    BackgroundColor #FAFAFA
+    BorderColor #B0BEC5
+    BorderThickness 2
+}
+skinparam usecase {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontColor #0D47A1
+    ArrowColor #546E7A
+}
+
+actor "Administrador del sistema" as Admin
+
+rectangle "Módulo: Administración" {
+    usecase "Gestionar usuarios" as UC11
+    usecase "Gestionar roles" as UC12
+    usecase "Registrar dispositivo" as UC13
+    usecase "Definir políticas" as UC14
+    usecase "Segmentar recursos" as UC15
+}
+
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+Admin --> UC14
+Admin --> UC15
+@enduml
