@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Laboratorio Zero Trust</title>
+
+    <style>
+        :root {
+            --azul: #123e63;
+            --azul-claro: #eef5f9;
+            --verde: #16855b;
+            --rojo: #bd2635;
+            --gris: #f4f6f8;
+            --texto: #18232d;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--gris);
+            color: var(--texto);
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--azul);
+            color: white;
+            padding: 24px 16px;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .brand small {
+            opacity: 0.8;
+        }
+
+        .menu button {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: white;
+            text-align: left;
+            padding: 12px;
+            margin: 4px 0;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .menu button:hover,
+        .menu button.active {
+            background: #275b83;
+        }
+
+        .main {
+            flex: 1;
+            padding: 28px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .header h2 {
+            color: var(--azul);
+            margin: 0;
+        }
+
+        .badge {
+            background: #e2f0d9;
+            color: #27623c;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .card,
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 2px 8px #00000012;
+        }
+
+        .card h4 {
+            margin: 0 0 12px;
+            color: #65717a;
+            font-size: 12px;
+        }
+
+        .card strong {
+            font-size: 28px;
+            color: var(--azul);
+        }
+
+        .panel {
+            margin-bottom: 20px;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            color: var(--azul);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .field label {
+            display: block;
+            color: #596771;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .field select,
+        .field input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cad4dc;
+            border-radius: 6px;
+        }
+
+        .button {
+            border: 0;
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin: 4px;
+            background: var(--azul);
+            color: white;
+            cursor: pointer;
+        }
+
+        .button.secondary {
+            background: #697983;
+        }
+
+        .button.danger {
+            background: var(--rojo);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 18px;
+            border-left: 5px solid var(--verde);
+            border-radius: 8px;
+            background: var(--azul-claro);
+        }
+
+        .result.denied {
+            border-left-color: var(--rojo);
+        }
+
+        .decision {
+            font-size: 23px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .step {
+            display: inline-block;
+            margin: 6px 4px 0 0;
+            padding: 8px 10px;
+            border-radius: 15px;
+            background: #dceee5;
+            color: #17603f;
+            font-size: 12px;
+        }
+
+        .step.invalid {
+            background: #f8dce0;
+            color: #9d1d2c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e2e7eb;
+        }
+
+        th {
+            color: var(--azul);
+            background: var(--azul-claro);
+        }
+
+        .allowed {
+            color: var(--verde);
+            font-weight: bold;
+        }
+
+        .denied-text {
+            color: var(--rojo);
+            font-weight: bold;
+        }
+
+        .architecture {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .node {
+            padding: 15px 12px;
+            border: 2px solid #6a9ac0;
+            border-radius: 8px;
+            background: #f1f7fb;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .arrow {
+            color: var(--azul);
+            font-size: 22px;
+        }
+
+        @media (max-width: 1100px) {
+            .cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .app {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .main {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>Laboratorio<br>Zero Trust</h1>
+            <small>Prototipo académico</small>
+        </div>
+
+        <nav class="menu">
+            <button class="active" onclick="showView('dashboard', this)">
+                Dashboard
+            </button>
+
+            <button onclick="showView('laboratory', this)">
+                Laboratorio Zero Trust
+            </button>
+
+            <button onclick="showView('users', this)">
+                Usuarios y roles
+            </button>
+
+            <button onclick="showView('devices', this)">
+                Dispositivos
+            </button>
+
+            <button onclick="showView('resources', this)">
+                Recursos protegidos
+            </button>
+
+            <button onclick="showView('policies', this)">
+                Políticas
+            </button>
+
+            <button onclick="showView('events', this)">
+                Auditoría
+            </button>
+
+            <button onclick="showView('tests', this)">
+                Escenarios de prueba
+            </button>
+
+            <button onclick="showView('architecture', this)">
+                Arquitectura
+            </button>
+        </nav>
+    </aside>
+
+    <main class="main">
+
+        <header class="header">
+            <h2 id="page-title">Dashboard</h2>
+            <span class="badge">
+                MODO LABORATORIO · DATOS SIMULADOS
+            </span>
+        </header>
+
+        <section id="dashboard" class="view active">
+            <div id="cards" class="cards"></div>
+
+            <div class="panel">
+                <h3>Últimos eventos</h3>
+                <div id="recent-events"></div>
+            </div>
+        </section>
+
+        <section id="laboratory" class="view">
+            <div class="panel">
+                <h3>Laboratorio Zero Trust</h3>
+
+                <p>
+                    La solicitud se evalúa considerando identidad, MFA,
+                    dispositivo, rol, recurso, segmento y política.
+                </p>
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label>Usuario</label>
+                        <select id="user-select"></select>
+                    </div>
+
+                    <div class="field">
+                        <label>Dispositivo</label>
+                        <select id="device-select"></select>
+                    </div>
+
+                    <div class="field">
+                        <label>Recurso</label>
+                        <select id="resource-select"></select>
+                    </div>
+
+                    <div class="field">
+                        <label>Resultado MFA</label>
+                        <select id="mfa-select">
+                            <option value="correcto">Correcto</option>
+                            <option value="incorrecto">Incorrecto</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Segmento de origen</label>
+                        <select id="segment-select">
+                            <option value="SEG-01">SEG-01 Usuarios</option>
+                            <option value="SEG-02">SEG-02 Administración</option>
+                            <option value="SEG-03">SEG-03 Recursos</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Origen de red</label>
+                        <input id="origin-input" value="10.0.1.25">
+                    </div>
+
+                </div>
+
+                <br>
+
+                <button class="button" onclick="evaluateRequest()">
+                    Evaluar solicitud
+                </button>
+
+                <button class="button secondary" onclick="loadScenario('valid')">
+                    CP-01 Acceso válido
+                </button>
+
+                <button class="button secondary" onclick="loadScenario('mfa')">
+                    CP-02 MFA incorrecto
+                </button>
+
+                <button class="button secondary" onclick="loadScenario('permission')">
+                    CP-03 Permiso insuficiente
+                </button>
+
+                <button class="button secondary" onclick="loadScenario('device')">
+                    CP-04 Dispositivo bloqueado
+                </button>
+
+                <div id="evaluation-result"></div>
+            </div>
+        </section>
+
+        <section id="users" class="view">
+            <div class="panel">
+                <h3>Usuarios y roles</h3>
+                <div id="users-table"></div>
+            </div>
+        </section>
+
+        <section id="devices" class="view">
+            <div class="panel">
+                <h3>Inventario de dispositivos</h3>
+                <div id="devices-table"></div>
+            </div>
+        </section>
+
+        <section id="resources" class="view">
+            <div class="panel">
+                <h3>Recursos protegidos</h3>
+                <div id="resources-table"></div>
+            </div>
+        </section>
+
+        <section id="policies" class="view">
+            <div class="panel">
+                <h3>Políticas de acceso</h3>
+                <div id="policies-table"></div>
+            </div>
+        </section>
+
+        <section id="events" class="view">
+            <div class="panel">
+                <h3>Eventos de auditoría</h3>
+
+                <button class="button danger" onclick="resetEvents()">
+                    Limpiar eventos de laboratorio
+                </button>
+
+                <br><br>
+
+                <div id="events-table"></div>
+            </div>
+        </section>
+
+        <section id="tests" class="view">
+            <div class="panel">
+                <h3>Escenarios de prueba</h3>
+
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Escenario</th>
+                        <th>Resultado esperado</th>
+                    </tr>
+
+                    <tr>
+                        <td>CP-01</td>
+                        <td>Usuario, MFA, dispositivo y rol válidos</td>
+                        <td class="allowed">PERMITIDO</td>
+                    </tr>
+
+                    <tr>
+                        <td>CP-02</td>
+                        <td>MFA incorrecto</td>
+                        <td class="denied-text">DENEGADO</td>
+                    </tr>
+
+                    <tr>
+                        <td>CP-03</td>
+                        <td>Permiso insuficiente</td>
+                        <td class="denied-text">DENEGADO</td>
+                    </tr>
+
+                    <tr>
+                        <td>CP-04</td>
+                        <td>Dispositivo no autorizado</td>
+                        <td class="denied-text">DENEGADO</td>
+                    </tr>
+
+                    <tr>
+                        <td>CP-05</td>
+                        <td>Usuario suspendido</td>
+                        <td class="denied-text">DENEGADO</td>
+                    </tr>
+
+                    <tr>
+                        <td>CP-06</td>
+                        <td>Auditoría de solicitud</td>
+                        <td>Evento creado</td>
+                    </tr>
+
+                    <tr>
+                        <td>CP-07</td>
+                        <td>Segmento no autorizado</td>
+                        <td class="denied-text">BLOQUEADO</td>
+                    </tr>
+
+                    <tr>
+                        <td>CP-08</td>
+                        <td>Revocación de sesión o dispositivo</td>
+                        <td class="denied-text">DENEGADO</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <section id="architecture" class="view">
+            <div class="panel">
+                <h3>Arquitectura conceptual</h3>
+
+                <div class="architecture">
+                    <div class="node">
+                        Usuario<br>Dispositivo
+                    </div>
+
+                    <span class="arrow">→</span>
+
+                    <div class="node">
+                        Firewall<br>VPN
+                    </div>
+
+                    <span class="arrow">→</span>
+
+                    <div class="node">
+                        Identidad<br>+ MFA
+                    </div>
+
+                    <span class="arrow">→</span>
+
+                    <div class="node">
+                        Inventario<br>dispositivos
+                    </div>
+
+                    <span class="arrow">→</span>
+
+                    <div class="node">
+                        Motor de<br>políticas
+                    </div>
+
+                    <span class="arrow">→</span>
+
+                    <div class="node">
+                        SEG-03<br>Recursos
+                    </div>
+
+                    <span class="arrow">→</span>
+
+                    <div class="node">
+                        Auditoría<br>SQLite
+                    </div>
+                </div>
+
+                <hr>
+
+                <p>
+                    <strong>SEG-01:</strong> usuarios.
+                    <strong>SEG-02:</strong> administración.
+                    <strong>SEG-03:</strong> recursos protegidos.
+                </p>
+
+                <p>
+                    La segmentación se simula lógicamente dentro de la
+                    aplicación. No se implementan VLAN físicas.
+                </p>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    let laboratoryData = {};
+
+    async function loadData() {
+        const response = await fetch("/api/data");
+        laboratoryData = await response.json();
+
+        renderDashboard();
+        renderTables();
+        renderSelectors();
+    }
+
+    function showView(viewId, button) {
+        document
+            .querySelectorAll(".view")
+            .forEach(view => view.classList.remove("active"));
+
+        document.getElementById(viewId).classList.add("active");
+
+        document
+            .querySelectorAll(".menu button")
+            .forEach(item => item.classList.remove("active"));
+
+        button.classList.add("active");
+
+        document.getElementById("page-title").textContent =
+            button.textContent.trim();
+    }
+
+    function buildTable(headers, rows, keys) {
+        let html = "<table><tr>";
+
+        headers.forEach(header => {
+            html += `<th>${header}</th>`;
+        });
+
+        html += "</tr>";
+
+        rows.forEach(row => {
+            html += "<tr>";
+
+            keys.forEach(key => {
+                html += `<td>${row[key] ?? ""}</td>`;
+            });
+
+            html += "</tr>";
+        });
+
+        html += "</table>";
+
+        return html;
+    }
+
+    function renderDashboard() {
+        const stats = laboratoryData.stats;
+
+        const cards = [
+            ["Usuarios activos", stats.active_users],
+            ["Dispositivos autorizados", stats.authorized_devices],
+            ["Accesos permitidos", stats.allowed_requests],
+            ["Accesos denegados", stats.denied_requests],
+            ["MFA fallidos", stats.failed_mfa],
+            ["Dispositivos bloqueados", stats.blocked_devices]
+        ];
+
+        document.getElementById("cards").innerHTML =
+            cards.map(card => `
+                <div class="card">
+                    <h4>${card[0]}</h4>
+                    <strong>${card[1]}</strong>
+                </div>
+            `).join("");
+
+        document.getElementById("recent-events").innerHTML =
+            buildTable(
+                ["Fecha", "Usuario", "Recurso", "Resultado", "Motivo"],
+                laboratoryData.events.slice(0, 10),
+                ["timestamp", "user_name", "resource_name", "result", "reason"]
+            );
+    }
+
+    function renderTables() {
+        document.getElementById("users-table").innerHTML =
+            buildTable(
+                ["Nombre", "Correo", "Rol", "Activo", "MFA"],
+                laboratoryData.users,
+                ["name", "email", "role", "active", "mfa_enabled"]
+            );
+
+        document.getElementById("devices-table").innerHTML =
+            buildTable(
+                [
+                    "Identificador",
+                    "Usuario",
+                    "Tipo",
+                    "Sistema operativo",
+                    "Estado",
+                    "Autorizado",
+                    "Postura"
+                ],
+                laboratoryData.devices,
+                [
+                    "identifier",
+                    "user_name",
+                    "type",
+                    "operating_system",
+                    "status",
+                    "authorized",
+                    "posture"
+                ]
+            );
+
+        document.getElementById("resources-table").innerHTML =
+            buildTable(
+                [
+                    "Nombre",
+                    "Tipo",
+                    "Segmento",
+                    "Sensibilidad",
+                    "Rol requerido"
+                ],
+                laboratoryData.resources,
+                [
+                    "name",
+                    "resource_type",
+                    "segment",
+                    "sensitivity",
+                    "required_role"
+                ]
+            );
+
+        document.getElementById("policies-table").innerHTML =
+            buildTable(
+                [
+                    "Código",
+                    "Nombre",
+                    "Prioridad",
+                    "Activo",
+                    "Acción"
+                ],
+                laboratoryData.policies,
+                [
+                    "code",
+                    "name",
+                    "priority",
+                    "active",
+                    "action"
+                ]
+            );
+
+        document.getElementById("events-table").innerHTML =
+            buildTable(
+                [
+                    "Fecha",
+                    "Usuario",
+                    "Dispositivo",
+                    "Recurso",
+                    "Origen",
+                    "Resultado",
+                    "Motivo",
+                    "Política",
+                    "Severidad",
+                    "Tiempo"
+                ],
+                laboratoryData.events,
+                [
+                    "timestamp",
+                    "user_name",
+                    "device_name",
+                    "resource_name",
+                    "origin",
+                    "result",
+                    "reason",
+                    "policy",
+                    "severity",
+                    "decision_ms"
+                ]
+            );
+    }
+
+    function renderSelectors() {
+        document.getElementById("user-select").innerHTML =
+            laboratoryData.users.map(user => `
+                <option value="${user.id}">
+                    ${user.name}
+                </option>
+            `).join("");
+
+        document.getElementById("device-select").innerHTML =
+            laboratoryData.devices.map(device => `
+                <option value="${device.id}">
+                    ${device.identifier}
+                </option>
+            `).join("");
+
+        document.getElementById("resource-select").innerHTML =
+            laboratoryData.resources.map(resource => `
+                <option value="${resource.id}">
+                    ${resource.name}
+                </option>
+            `).join("");
+    }
+
+    function loadScenario(type) {
+        if (type === "valid") {
+            document.getElementById("user-select").value = "2";
+            document.getElementById("device-select").value = "2";
+            document.getElementById("resource-select").value = "1";
+            document.getElementById("mfa-select").value = "correcto";
+            document.getElementById("segment-select").value = "SEG-03";
+        }
+
+        if (type === "mfa") {
+            document.getElementById("user-select").value = "2";
+            document.getElementById("device-select").value = "2";
+            document.getElementById("resource-select").value = "1";
+            document.getElementById("mfa-select").value = "incorrecto";
+            document.getElementById("segment-select").value = "SEG-03";
+        }
+
+        if (type === "permission") {
+            document.getElementById("user-select").value = "2";
+            document.getElementById("device-select").value = "2";
+            document.getElementById("resource-select").value = "3";
+            document.getElementById("mfa-select").value = "correcto";
+            document.getElementById("segment-select").value = "SEG-03";
+        }
+
+        if (type === "device") {
+            document.getElementById("user-select").value = "3";
+            document.getElementById("device-select").value = "3";
+            document.getElementById("resource-select").value = "1";
+            document.getElementById("mfa-select").value = "correcto";
+            document.getElementById("segment-select").value = "SEG-03";
+        }
+    }
+
+    async function evaluateRequest() {
+        const payload = {
+            user_id: Number(
+                document.getElementById("user-select").value
+            ),
+            device_id: Number(
+                document.getElementById("device-select").value
+            ),
+            resource_id: Number(
+                document.getElementById("resource-select").value
+            ),
+            mfa: document.getElementById("mfa-select").value,
+            segment: document.getElementById("segment-select").value,
+            origin: document.getElementById("origin-input").value
+        };
+
+        const response = await fetch("/api/evaluate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        const resultBox = document.getElementById(
+            "evaluation-result"
+        );
+
+        resultBox.className =
+            result.result === "DENEGADO"
+                ? "result denied"
+                : "result";
+
+        resultBox.innerHTML = `
+            <div class="decision">
+                DECISIÓN: ${result.result}
+            </div>
+
+            <p>
+                <strong>Motivo:</strong>
+                ${result.reason}
+            </p>
+
+            <p>
+                <strong>Política aplicada:</strong>
+                ${result.policy}
+            </p>
+
+            <p>
+                <strong>Tiempo de decisión:</strong>
+                ${result.decision_ms} ms
+            </p>
+
+            <div>
+                ${result.checks.map(check => `
+                    <span class="step ${check.ok ? "" : "invalid"}">
+                        ${check.ok ? "✓" : "✗"}
+                        ${check.name}
+                    </span>
+                `).join("")}
+
+                <span class="step">
+                    → Auditoría registrada
+                </span>
+            </div>
+        `;
+
+        await loadData();
+    }
+
+    async function resetEvents() {
+        await fetch("/api/reset-events", {
+            method: "POST"
+        });
+
+        await loadData();
+    }
+
+    loadData();
+</script>
+
+</body>
+</html>

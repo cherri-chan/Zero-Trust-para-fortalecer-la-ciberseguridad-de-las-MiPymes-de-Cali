@@ -1,0 +1,50 @@
+flowchart LR
+
+    U[Usuario empresarial]
+    A[Administrador]
+    D[Dispositivo]
+
+    FW[Firewall / Router]
+    VPN[VPN de acceso remoto]
+
+    SEG1[SEG-01 Usuarios]
+    SEG2[SEG-02 Administración]
+    SEG3[SEG-03 Recursos protegidos]
+
+    IDP[Proveedor de identidad]
+    MFA[Servicio MFA simulado]
+    INV[Inventario de dispositivos]
+    POL[Motor de políticas]
+    CTRL[Controlador de acceso]
+    AUD[Auditoría]
+    DB[(SQLite)]
+
+    APP[Aplicación empresarial]
+    FILES[Servidor de archivos]
+    DATA[Base de datos protegida]
+
+    U --> D
+    A --> D
+    D --> FW
+
+    FW --> VPN
+    FW --> SEG1
+    FW --> SEG2
+
+    SEG1 --> IDP
+    SEG2 --> IDP
+
+    IDP --> MFA
+    IDP --> POL
+    INV --> POL
+
+    POL --> CTRL
+    CTRL --> SEG3
+
+    SEG3 --> APP
+    SEG3 --> FILES
+    SEG3 --> DATA
+
+    POL --> AUD
+    CTRL --> AUD
+    AUD --> DB
