@@ -1,0 +1,30 @@
+flowchart LR
+    U[Usuario empresarial]
+    D[Dispositivo asociado]
+    IDP[Identidad simulada]
+    MFA[MFA simulado]
+    INV[Inventario de dispositivos]
+    POL[Motor de políticas parametrizado]
+    CTRL[Evaluador de acceso]
+    SEG3[SEG-03 Recursos protegidos]
+    APP[Aplicación empresarial]
+    FILES[Servidor de archivos]
+    DATA[Base de datos protegida]
+    AUD[Auditoría]
+    DB[(SQLite)]
+
+    U --> D
+    D --> IDP
+    IDP --> MFA
+    MFA --> INV
+    INV --> POL
+    POL --> CTRL
+    CTRL --> SEG3
+
+    SEG3 --> APP
+    SEG3 --> FILES
+    SEG3 --> DATA
+
+    POL --> AUD
+    CTRL --> AUD
+    AUD --> DB
