@@ -229,6 +229,4 @@ DENEGADO
 - El sistema no garantiza la eliminación de incidentes.
 - Los resultados del laboratorio no representan automáticamente a todas las MiPymes de Santiago de Cali.
 
-## Nota para la sustentación
-
-El prototipo debe presentarse como un laboratorio controlado. Las pruebas del laboratorio demuestran lógica de decisión; no demuestran impacto empresarial ni una reducción comprobada de incidentes.
+## POWERED BY 🪴
