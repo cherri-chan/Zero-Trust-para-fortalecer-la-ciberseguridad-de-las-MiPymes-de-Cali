@@ -220,8 +220,6 @@ No es necesario adjuntar `.venv/`.
 
 La base de datos `database/zero_trust.db` puede omitirse si la entrega debe quedar reproducible desde cero, porque se genera automáticamente.
 
-## 22. Recomendación para la presentación
-
-Durante la sustentación, explica que las políticas están almacenadas y parametrizadas en SQLite, pero que la interpretación de cada `rule_key` todavía reside en el código. Eso evita presentar el sistema como un motor empresarial completamente independiente del código.
+You're ready to go, and remember, this is powered by 🪴
 
 También aclara que MFA, identidad y segmentación son simulados y que el sistema está diseñado para ejecutarse únicamente en `127.0.0.1`.
